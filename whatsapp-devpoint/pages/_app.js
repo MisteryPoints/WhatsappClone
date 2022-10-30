@@ -1,8 +1,9 @@
 import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore'
-import { useEffect } from 'react'
+import { Fragment, useEffect } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import Loading from '../components/Loading'
 import { auth, db } from '../firebase'
+import GlobalStyle from '../theme/globalStyles'
 import Login from './login'
 
 function MyApp({ Component, pageProps }) {
@@ -23,10 +24,25 @@ function MyApp({ Component, pageProps }) {
     }
   }, [user])
 
-  if (loading) return <Loading/> 
-  if (!user) return <Login/>
+  if (loading) return (
+    <Fragment> 
+      <GlobalStyle/>
+      <Loading/> 
+    </Fragment>
+  )
+  if (!user) return ( 
+    <Fragment> 
+      <GlobalStyle/>
+      <Login/>
+    </Fragment>
+  )
 
-  return <Component {...pageProps} />
+  return ( 
+    <Fragment> 
+      <GlobalStyle/>
+      <Component {...pageProps} />
+    </Fragment>
+  )
 }
 
 export default MyApp

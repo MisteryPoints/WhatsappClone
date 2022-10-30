@@ -5,8 +5,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Chats | DevPoint Messenger</title> 
-        <link rel="icon" href="/favicon.ico" />
+        <title>Chats | DevPoint Messenger</title>  
       </Head>
 
       <Sidebar/>

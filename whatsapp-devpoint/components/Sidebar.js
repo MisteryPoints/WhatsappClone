@@ -5,7 +5,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 import SearchIcon from '@material-ui/icons/Search'
 import * as EmailValidator from 'email-validator'
 import { addDoc, collection, query, where } from 'firebase/firestore'
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useCollection } from 'react-firebase-hooks/firestore'
 import styled from "styled-components"
@@ -38,6 +38,8 @@ function Sidebar() {
     } 
   } 
 
+  const searchInput = useRef(null)
+
   const chatAlreadyExists = (recipientEmail) => (
     // returns true or false
     !!chatsSnapshot?.docs.find( ( chat ) => chat.data().users.find( ( isUser ) => isUser === recipientEmail ) )
@@ -46,7 +48,7 @@ function Sidebar() {
   return (
     <Container>
       <Header>
-        <UseAvatar referrerPolicy="whatsappclonedevpoint.firebaseapp.com" src={user.photoURL} onClick={() => auth.signOut()}/>
+        <UseAvatar referrerPolicy="no-referrer" src={user.photoURL} onClick={() => auth.signOut()}/>
 
         <IconsContainer>
           <IconButton>
@@ -62,8 +64,8 @@ function Sidebar() {
       </Header> 
 
       <Search>
-        <SearchIcon/>
-        <SearchInput value={wordToBeSearched} onChange={(e) => setWordToBeSearched(e.target.value)} placeholder="Search in chats"/>
+        <SearcherIcon  onClick={() => searchInput?.current?.focus()}/>
+        <SearchInput ref={searchInput} value={wordToBeSearched} onChange={(e) => setWordToBeSearched(e.target.value)} placeholder="Search in chats"/>
       </Search>
 
       <SidebarButton onClick={createChat}>Start a new chat</SidebarButton>
@@ -80,20 +82,42 @@ function Sidebar() {
 export default Sidebar
 
 const Container = styled.div` 
-
+  flex: 0.45;
+  border-right: 1px solid whitesmoke;
+  height: 100vh;
+  min-width: 300px;
+  max-width: 350px;
+  overflow-y: scroll;
+  
+  ::-webkit-scrollbar {
+    display: none;  /*  Chrome  */
+  }
+  -ms-overflow-style: none; /* IE & Edge */ 
+  scrollbar-width: none; /* FireFox */  
 `
 
 const Search = styled.div`  
   display: flex;
   align-items: center;
-  padding: 20px;
-  border-radius: 2px;
+  padding: 0px 20px;
+  border-radius: 2px;  
+`
+
+const SearcherIcon = styled(SearchIcon)`
+  padding-right: 5px;
+  :hover{
+    cursor: pointer;
+    opacity: 0.7;
+  }
 `
 
 const SearchInput = styled.input` 
   outline-width: 0;
+  height: 40px;
   border: none;
   flex: 1;
+  outline: none; 
+  font-family: Nunito, Helvetica, Sans-Serif;
 `
 const SidebarButton = styled(Button)`
   width: 100%; 
@@ -101,6 +125,10 @@ const SidebarButton = styled(Button)`
   &&& { 
     border-top: 1px solid #E3E3E3;
     border-bottom: 1px solid #E3E3E3;
+    font-family: Nunito, Helvetica, Sans-Serif;
+    font-weight: bold;
+    text-align: center;
+    color: rgba(0,0,0, 0.8);
   }
 `
 
@@ -112,13 +140,14 @@ const Header = styled.div`
   z-index: 1;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
+  padding: 8px;
   height: 80px;
   border-bottom: 1px solid #E3E3E3;
 `
 
 const UseAvatar = styled(Avatar)`
   cursor: pointer;
+  margin-left: 15px;
 
   &&& {
     color: whitesmoke;
