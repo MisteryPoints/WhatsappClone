@@ -1,31 +1,52 @@
 import { Avatar, Button, IconButton } from "@material-ui/core"
 import ChatIcon from '@material-ui/icons/Chat'
+import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import SearchIcon from '@material-ui/icons/Search'
-import styled from "styled-components"
 import * as EmailValidator from 'email-validator'
+import { addDoc, collection, query, where } from 'firebase/firestore'
+import { useState } from "react"
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { useCollection } from 'react-firebase-hooks/firestore'
+import styled from "styled-components"
+import { auth, db } from '../firebase.js'
+import Chat from "./Chat.js"
 
 function Sidebar() {
-  const createChat = () => {
-    const input = prompt(
-      'Please enter an email address for the user you wish to chat with'
-    )
-    if(!input) return
 
-    if(EmailValidator.validate(input)) {
-      // We need to add the chat into a DB 'chats' collection
-      const chat = {
-        id: Date.now(),
-        name: input,
-        email: input
-      }
-    }
-  }
+  const [ wordToBeSearched, setWordToBeSearched ] = useState("")
+  const [ user ] = useAuthState(auth)
+  const userQueryInfo = query( collection( db, 'chats' ), where( 'users' , 'array-contains' ,user.email))
+  const [ chatsSnapshot ] = useCollection(userQueryInfo) 
+
+  const createChat = () => {
+    const input = prompt('Please enter an email address for the user you wish to chat with: ')
+    if(!input) return  
+    if(EmailValidator.validate(input) && input != user.email && !chatAlreadyExists(input)) {
+        const chatInfo = collection(db,'chats'); 
+        
+        // addDoc lets Cloud Firestore auto-generate an ID for you
+        // setDoc must include id
+        addDoc(chatInfo , {
+          users: [user.email, input], // sender and recepient 
+
+        })
+
+        alert("New chat created!")
+    }else{
+        alert("User already exists in your chat list!")
+    } 
+  } 
+
+  const chatAlreadyExists = (recipientEmail) => (
+    // returns true or false
+    !!chatsSnapshot?.docs.find( ( chat ) => chat.data().users.find( ( isUser ) => isUser === recipientEmail ) )
+  )
 
   return (
     <Container>
       <Header>
-        <UseAvatar />
+        <UseAvatar referrerPolicy="whatsappclonedevpoint.firebaseapp.com" src={user.photoURL} onClick={() => auth.signOut()}/>
 
         <IconsContainer>
           <IconButton>
@@ -34,17 +55,23 @@ function Sidebar() {
           <IconButton> 
             <MoreVertIcon/>
           </IconButton>
+          <IconButton style={{ color: "red" }} onClick={() => { confirm("Log out?") && auth.signOut() }}>
+            <ExitToAppIcon/>
+          </IconButton>
         </IconsContainer>
       </Header> 
 
       <Search>
         <SearchIcon/>
-        <SearchInput placeholder="Search in chats"/>
+        <SearchInput value={wordToBeSearched} onChange={(e) => setWordToBeSearched(e.target.value)} placeholder="Search in chats"/>
       </Search>
 
       <SidebarButton onClick={createChat}>Start a new chat</SidebarButton>
 
       {/* TODO: List of Chats */}
+      { chatsSnapshot?.docs.map( ( chat ) =>  (
+        <Chat key={chat.id} id={chat.id} users={chat.data().users} />
+      ))}
     </Container>
   )
 }

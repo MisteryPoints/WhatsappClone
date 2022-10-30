@@ -1,15 +1,15 @@
-import Head from 'next/head' 
+import Head from 'next/head'
 import Sidebar from '../components/Sidebar'
 
 export default function Home() {
   return (
-    <div>
+    <>
       <Head>
-        <title>WhatsApp | DevPoint</title> 
+        <title>Chats | DevPoint Messenger</title> 
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <Sidebar/>
-    </div>
+    </>
   )
 }
