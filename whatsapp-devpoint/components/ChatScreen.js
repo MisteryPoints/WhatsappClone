@@ -20,19 +20,22 @@ function ChatScreen({ chat, messages }) {
     const [ input, setInput ] = useState('')
     const endOfMessagesRef = useRef(null)
     const router = useRouter()
-    const [ messagesSnapshot ] = useCollection(collection(doc(db, 'chats', router.query.id), 'messages'), orderBy('timestamp', 'asc'))
+    const queryMessages = query(collection(doc(db, 'chats', router.query.id), 'messages'), orderBy('timestamp', 'asc'))
+    const [ messagesSnapshot ] = useCollection(queryMessages)
     const queryRecipient = query( collection( db, 'users' ), where( 'email', '==', getRecipientEmail( chat.users, user ) ))
     const [ recipientSnapshot ] = useCollection(queryRecipient)
-     
+      
 
     const showMessages = () => {
         if (messagesSnapshot) { 
-            return messagesSnapshot.docs.map(messages => (
+            return messagesSnapshot.docs.map(messages => {
+                console.log(messages.data())
+                return(
                 <Message key={messages.id} user={messages.data().user} messages={{
                     ...messages.data(),
                     timestamp: messages.data().timestamp?.toDate().getTime(),
                 }} /> 
-            ))
+            )})
         } else {
             return JSON.parse(messages).map(message => (
                 <Message key={message.id} user={message.user} messages={message} /> 
