@@ -41,10 +41,11 @@ function ChatScreen({ chat, messages }) {
                 <Message key={message.id} user={message.user} messages={message} /> 
             ))
         }
+        scrollToBottom( )
     } 
 
-    const ScrollToBottom = () => {
-        endOfMessagesRef.current.scrollIntoView({
+    const scrollToBottom = () => {
+        endOfMessagesRef?.current?.scrollIntoView({
             behavior:'smooth',
             block: 'start',
         })
@@ -66,7 +67,7 @@ function ChatScreen({ chat, messages }) {
         })
 
         setInput('')
-        ScrollToBottom( )
+        scrollToBottom( )
     }
 
     const recipient = recipientSnapshot?.docs?.[0]?.data()
@@ -103,6 +104,7 @@ function ChatScreen({ chat, messages }) {
             <MessageContainer>
                 {showMessages()}
                 <EndOfMessages ref={endOfMessagesRef}/>
+                {scrollToBottom()}
             </MessageContainer>
 
             <InputContainer>
