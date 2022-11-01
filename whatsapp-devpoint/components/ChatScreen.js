@@ -21,6 +21,7 @@ function ChatScreen({ chat, messages }) {
     const endOfMessagesRef = useRef(null)
     const router = useRouter()
     const queryMessages = query(collection(doc(db, 'chats', router.query.id), 'messages'), orderBy('timestamp', 'asc'))
+    console.log(queryMessages)
     const [ messagesSnapshot ] = useCollection(queryMessages)
     const queryRecipient = query( collection( db, 'users' ), where( 'email', '==', getRecipientEmail( chat.users, user ) ))
     const [ recipientSnapshot ] = useCollection(queryRecipient)
